@@ -1,6 +1,6 @@
 {
-  "name": "apollo3-cache-persist",
-  "version": "0.15.0",
+  "name": "@knemerzitski/apollo3-cache-persist",
+  "version": "0.16.0",
   "description": "Simple persistence for all Apollo cache implementations",
   "author": "James Reggio <james.reggio@gmail.com>",
   "contributors": [
@@ -14,10 +14,10 @@
   "typings": "./lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/apollographql/apollo-cache-persist.git"
+    "url": "git+https://github.com/knemerzitski/apollo-cache-persist.git"
   },
-  "homepage": "https://github.com/apollographql/apollo-cache-persist#readme",
-  "bugs": "https://github.com/apollographql/apollo-cache-persist/issues",
+  "homepage": "https://github.com/knemerzitski/apollo-cache-persist#readme",
+  "bugs": "https://github.com/knemerzitski/apollo-cache-persist/issues",
   "scripts": {
     "version": "yarn run changelog && git add CHANGELOG.md",
     "postversion": "yarn run publish:git && yarn run publish:npm",
