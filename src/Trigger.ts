@@ -72,24 +72,40 @@ export default class Trigger<T> {
     }
   }
 
+  flush(): void {
+    if (this.cancel()) {
+      this.persist();
+    }
+  }
+
+  cancel(): boolean {
+    if (this.timeout != null) {
+      clearTimeout(this.timeout);
+      return true;
+    }
+    return false;
+  }
+
+  isPending() {
+    return this.timeout != null;
+  }
+
   fire = () => {
     if (!this.debounce) {
       this.persist();
       return;
     }
 
-    if (this.timeout != null) {
-      clearTimeout(this.timeout);
-    }
+    this.cancel();
 
     this.timeout = setTimeout(this.persist, this.debounce);
   };
 
   persist = () => {
+    this.timeout = null;
     if (this.paused) {
       return;
     }
-
     this.persistor.persist();
   };
 }

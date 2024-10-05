@@ -74,6 +74,22 @@ export default class CachePersistor<T> {
     this.trigger.remove();
   }
 
+  isPaused(): boolean {
+    return this.trigger.paused;
+  }
+
+  flush() {
+    return this.trigger.flush();
+  }
+
+  cancel() {
+    return this.trigger.cancel();
+  }
+
+  isPending(): boolean {
+    return this.trigger.isPending();
+  }
+
   /**
    * Info accessor.
    */
