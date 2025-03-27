@@ -5,8 +5,23 @@ import Persistor from './Persistor';
 import Trigger from './Trigger';
 
 import { ApolloPersistOptions, LogLine } from './types';
+import mitt, { Emitter } from './mitt';
+
+export interface CachePersistorEvents {
+  pending: undefined;
+  cancelled: undefined;
+  persisted: undefined;
+  persistError: {
+    error: unknown;
+  };
+}
 
 export default class CachePersistor<T> {
+  private _eventBus: Emitter<CachePersistorEvents> = mitt();
+  get eventBus(): Pick<Emitter<CachePersistorEvents>, 'on' | 'off'> {
+    return this._eventBus;
+  }
+
   log: Log<T>;
   cache: Cache<T>;
   storage: Storage<T>;
@@ -33,6 +48,20 @@ export default class CachePersistor<T> {
     const storage = new Storage(options);
     const persistor = new Persistor({ log, cache, storage }, options);
     const trigger = new Trigger({ log, persistor }, options);
+
+    trigger.eventBus.on('pending', (e) => {
+      this._eventBus.emit('pending', e);
+    });
+    trigger.eventBus.on('cancelled', (e) => {
+      this._eventBus.emit('cancelled', e);
+    });
+
+    persistor.eventBus.on('persisted', (e) => {
+      this._eventBus.emit('persisted', e);
+    });
+    persistor.eventBus.on('persistError', (e) => {
+      this._eventBus.emit('persistError', e);
+    });
 
     this.log = log;
     this.cache = cache;

@@ -4,13 +4,25 @@ import onAppBackground from './onAppBackground';
 import Log from './Log';
 import Persistor from './Persistor';
 import { ApolloPersistOptions, TriggerUninstallFunction } from './types';
+import mitt, { Emitter } from './mitt';
 
 export interface TriggerConfig<T> {
   log: Log<T>;
   persistor: Persistor<T>;
 }
 
+export interface TriggerEvents {
+  pending: undefined;
+  persisting: undefined;
+  cancelled: undefined;
+}
+
 export default class Trigger<T> {
+  private _eventBus: Emitter<TriggerEvents> = mitt();
+  get eventBus(): Pick<Emitter<TriggerEvents>, 'on' | 'off'> {
+    return this._eventBus;
+  }
+
   debounce: number;
   persistor: Persistor<T>;
   paused: boolean;
@@ -79,11 +91,15 @@ export default class Trigger<T> {
   }
 
   cancel(): boolean {
-    if (this.timeout != null) {
-      clearTimeout(this.timeout);
-      return true;
+    try {
+      if (this.timeout != null) {
+        clearTimeout(this.timeout);
+        return true;
+      }
+      return false;
+    } finally {
+      this._eventBus.emit('cancelled');
     }
-    return false;
   }
 
   isPending() {
@@ -99,6 +115,7 @@ export default class Trigger<T> {
     this.cancel();
 
     this.timeout = setTimeout(this.persist, this.debounce);
+    this._eventBus.emit('pending');
   };
 
   persist = () => {
@@ -106,6 +123,9 @@ export default class Trigger<T> {
     if (this.paused) {
       return;
     }
+
+    this._eventBus.emit('persisting');
+
     this.persistor.persist();
   };
 }

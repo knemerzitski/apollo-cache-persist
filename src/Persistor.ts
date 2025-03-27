@@ -3,6 +3,7 @@ import Storage from './Storage';
 import Cache from './Cache';
 
 import { ApolloPersistOptions, PersistenceMapperFunction } from './types';
+import mitt, { Emitter } from './mitt';
 
 export interface PersistorConfig<T> {
   log: Log<T>;
@@ -10,7 +11,27 @@ export interface PersistorConfig<T> {
   storage: Storage<T>;
 }
 
+export interface TriggerEvents {
+  persisted: undefined;
+  persistError: {
+    error: unknown;
+  };
+  restored: undefined;
+  restoreError: {
+    error: unknown;
+  };
+  purged: undefined;
+  purgeError: {
+    error: unknown;
+  };
+}
+
 export default class Persistor<T> {
+  private _eventBus: Emitter<TriggerEvents> = mitt();
+  get eventBus(): Pick<Emitter<TriggerEvents>, 'on' | 'off'> {
+    return this._eventBus;
+  }
+
   log: Log<T>;
   cache: Cache<T>;
   storage: Storage<T>;
@@ -68,8 +89,12 @@ export default class Persistor<T> {
           ? `Persisted cache of size ${data.length} characters`
           : 'Persisted cache',
       );
+      this._eventBus.emit('persisted');
     } catch (error) {
       this.log.error('Error persisting cache', error);
+      this._eventBus.emit('persistError', {
+        error,
+      });
       throw error;
     }
   }
@@ -89,8 +114,10 @@ export default class Persistor<T> {
       } else {
         this.log.info('No stored cache to restore');
       }
+      this._eventBus.emit('restored');
     } catch (error) {
       this.log.error('Error restoring cache', error);
+      this._eventBus.emit('restoreError', { error });
       throw error;
     }
   }
@@ -99,8 +126,12 @@ export default class Persistor<T> {
     try {
       await this.storage.purge();
       this.log.info('Purged cache storage');
+      this._eventBus.emit('purged');
     } catch (error) {
       this.log.error('Error purging cache storage', error);
+      this._eventBus.emit('purgeError', {
+        error,
+      });
       throw error;
     }
   }
