@@ -3,7 +3,7 @@ import Storage from './Storage';
 import Cache from './Cache';
 
 import { ApolloPersistOptions, PersistenceMapperFunction } from './types';
-import mitt, { Emitter } from './mitt';
+import mitt, { Emitter } from 'mitt';
 
 export interface PersistorConfig<T> {
   log: Log<T>;

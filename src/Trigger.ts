@@ -4,7 +4,7 @@ import onAppBackground from './onAppBackground';
 import Log from './Log';
 import Persistor from './Persistor';
 import { ApolloPersistOptions, TriggerUninstallFunction } from './types';
-import mitt, { Emitter } from './mitt';
+import mitt, { Emitter } from 'mitt';
 
 export interface TriggerConfig<T> {
   log: Log<T>;

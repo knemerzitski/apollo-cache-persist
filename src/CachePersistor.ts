@@ -5,7 +5,7 @@ import Persistor from './Persistor';
 import Trigger from './Trigger';
 
 import { ApolloPersistOptions, LogLine } from './types';
-import mitt, { Emitter } from './mitt';
+import mitt, { Emitter } from 'mitt';
 
 export interface CachePersistorEvents {
   pending: undefined;
